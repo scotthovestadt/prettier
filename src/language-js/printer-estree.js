@@ -4087,7 +4087,12 @@ function printFunctionTypeParameters(path, options, print) {
 
 function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   const fun = path.getValue();
+  const parent = path.getParentNode();
   const paramsField = fun.parameters ? "parameters" : "params";
+  const isParametersInTestCall = isTestCall(parent);
+  const isParametersShouldBeHugged = shouldHugArguments(fun);
+  const isParametersShouldBeExpanded =
+    expandArg && !(fun[paramsField] && fun[paramsField].some(n => n.comments));
 
   const typeParams = printTypeParams
     ? printFunctionTypeParameters(path, options, print)
@@ -4095,7 +4100,32 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
 
   let printed = [];
   if (fun[paramsField]) {
-    printed = path.map(print, paramsField);
+    const lastArgIndex = fun[paramsField].length - 1;
+
+    printed = path.map((childPath, index) => {
+      const parts = [];
+      const param = childPath.getValue();
+
+      parts.push(print(childPath));
+
+      if (index === lastArgIndex) {
+        if (fun.rest) {
+          parts.push(",", line);
+        }
+      } else if (
+        isParametersInTestCall ||
+        isParametersShouldBeHugged ||
+        isParametersShouldBeExpanded
+      ) {
+        parts.push(", ");
+      } else if (isNextLineEmpty(options.originalText, param, options)) {
+        parts.push(",", hardline, hardline);
+      } else {
+        parts.push(",", line);
+      }
+
+      return concat(parts);
+    }, paramsField);
   }
 
   if (fun.rest) {
@@ -4133,15 +4163,12 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   //     }                     b,
   //   })                    ) => {
   //                         })
-  if (
-    expandArg &&
-    !(fun[paramsField] && fun[paramsField].some(n => n.comments))
-  ) {
+  if (isParametersShouldBeExpanded) {
     return group(
       concat([
         removeLines(typeParams),
         "(",
-        join(", ", printed.map(removeLines)),
+        concat(printed.map(removeLines)),
         ")"
       ])
     );
@@ -4154,15 +4181,13 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   //   b,
   //   c
   // }) {}
-  if (shouldHugArguments(fun)) {
-    return concat([typeParams, "(", join(", ", printed), ")"]);
+  if (isParametersShouldBeHugged) {
+    return concat([typeParams, "(", concat(printed), ")"]);
   }
 
-  const parent = path.getParentNode();
-
   // don't break in specs, eg; `it("should maintain parens around done even when long", (done) => {})`
-  if (isTestCall(parent)) {
-    return concat([typeParams, "(", join(", ", printed), ")"]);
+  if (isParametersInTestCall) {
+    return concat([typeParams, "(", concat(printed), ")"]);
   }
 
   const isFlowShorthandWithOneArg =
@@ -4194,7 +4219,7 @@ function printFunctionParams(path, print, options, expandArg, printTypeParams) {
   return concat([
     typeParams,
     "(",
-    indent(concat([softline, join(concat([",", line]), printed)])),
+    indent(concat([softline, concat(printed)])),
     ifBreak(
       canHaveTrailingComma && shouldPrintComma(options, "all") ? "," : ""
     ),
