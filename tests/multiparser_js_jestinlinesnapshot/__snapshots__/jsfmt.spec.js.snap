@@ -2,7 +2,7 @@
 
 exports[`jestinlinesnapshot-multi-line.js 1`] = `
 ====================================options=====================================
-parsers: ["babel"]
+parsers: ["babel", "flow", "typescript"]
 printWidth: 80
 proseWrap: "always"
                                                                                 | printWidth
@@ -80,7 +80,7 @@ it("is a test", () => {
 
 exports[`jestinlinesnapshot-single-line.js 1`] = `
 ====================================options=====================================
-parsers: ["babel"]
+parsers: ["babel", "flow", "typescript"]
 printWidth: 80
 proseWrap: "always"
                                                                                 | printWidth
