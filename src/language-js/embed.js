@@ -143,6 +143,57 @@ function embed(path, print, textToDoc /*, options */) {
         return printHtmlTemplateLiteral(path, print, textToDoc, "angular");
       }
 
+      if (isJestInlineSnapshot(path)) {
+        // Earlier Jest versions do not support formatted snapshots.
+        let isJestSnapshotFormattingSupported;
+        try {
+          const jestVersion = require("jest")
+            .getVersion()
+            .split(".");
+          isJestSnapshotFormattingSupported =
+            jestVersion[0] >= 24 && jestVersion[1] >= 5;
+        } catch (ex) {
+          isJestSnapshotFormattingSupported = false;
+        }
+  
+        if (isJestSnapshotFormattingSupported) {
+          const node = path.getValue();
+          const text = node.quasis.map(quasi => quasi.value.raw).join("");
+          let lines = text.split("\n");
+
+          // No formatting needed for single-line snapshots.
+          if (
+            lines.length > 1 &&
+            lines[0].trim() === "" &&
+            lines[lines.length - 1].trim() === ""
+          ) {
+            // Remove empty first and last lines.
+            lines.shift();
+            lines.pop();
+
+            // Normalize to 0 indent (may have been manually adjusted).
+            const baseIndent = getIndentation(lines[0]);
+            if (baseIndent) {
+              lines = lines.map(line => {
+                return line.indexOf(baseIndent) === 0
+                  ? line.replace(baseIndent, "")
+                  : line;
+              });
+            }
+
+            // Indent snapshot appropriately.
+            // Multi-line snapshots should have a newline at top and bottom.
+            return concat([
+              "`",
+              indent(hardline),
+              indent(concat([join(hardline, lines)])),
+              hardline,
+              "`"
+            ]);
+          }
+        }
+      }
+
       break;
     }
 
@@ -501,6 +552,23 @@ function isGraphQL(path) {
         (parent.type === "CallExpression" &&
           parent.callee.type === "Identifier" &&
           parent.callee.name === "graphql")))
+  );
+}
+
+/**
+ * Jest inline snapshot.
+ */
+function isJestInlineSnapshot(path) {
+  const parent = path.getParentNode();
+
+  return (
+    parent &&
+    parent.type === "CallExpression" &&
+    parent.callee &&
+    parent.callee.type === "MemberExpression" &&
+    parent.callee.property &&
+    parent.callee.property.type === "Identifier" &&
+    parent.callee.property.name === "toMatchInlineSnapshot"
   );
 }
 

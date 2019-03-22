@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`jestinlinesnapshot-multi-line.js 1`] = `
+====================================options=====================================
+parsers: ["babel"]
+printWidth: 80
+proseWrap: "always"
+                                                                                | printWidth
+=====================================input======================================
+it("is a test", () => {
+  expect(tree).toMatchInlineSnapshot(\`
+Object {
+  "createdAt": 2018-05-19T23:36:09.816Z,
+  "id": 3,
+  "name": "LeBron James",
+}
+\`);
+
+  expect(nextState).toMatchInlineSnapshot(\`
+    Object {
+      "createdAt": 2018-05-19T23:36:09.816Z,
+      "id": 3,
+      "name": "LeBron James",
+    }
+  \`);
+
+  expect(tree).toMatchInlineSnapshot(\`
+          Object {
+            "createdAt": 2018-05-19T23:36:09.816Z,
+            "id": 3,
+            "name": "LeBron James",
+          }
+        \`);
+
+        expect(tree).toMatchInlineSnapshot(\`
+        Object {
+          "createdAt": 2018-05-19T23:36:09.816Z,
+          "id": 3,
+          "name": "LeBron James",
+        }
+      \`);
+});
+=====================================output=====================================
+it("is a test", () => {
+  expect(tree).toMatchInlineSnapshot(\`
+    Object {
+      "createdAt": 2018-05-19T23:36:09.816Z,
+      "id": 3,
+      "name": "LeBron James",
+    }
+  \`);
+
+  expect(nextState).toMatchInlineSnapshot(\`
+    Object {
+      "createdAt": 2018-05-19T23:36:09.816Z,
+      "id": 3,
+      "name": "LeBron James",
+    }
+  \`);
+
+  expect(tree).toMatchInlineSnapshot(\`
+    Object {
+      "createdAt": 2018-05-19T23:36:09.816Z,
+      "id": 3,
+      "name": "LeBron James",
+    }
+  \`);
+
+  expect(tree).toMatchInlineSnapshot(\`
+    Object {
+      "createdAt": 2018-05-19T23:36:09.816Z,
+      "id": 3,
+      "name": "LeBron James",
+    }
+  \`);
+});
+
+================================================================================
+`;
+
+exports[`jestinlinesnapshot-single-line.js 1`] = `
+====================================options=====================================
+parsers: ["babel"]
+printWidth: 80
+proseWrap: "always"
+                                                                                | printWidth
+=====================================input======================================
+it("is a test", () => {
+  expect(tree).toMatchInlineSnapshot(\`<Hello />\`);
+});
+
+=====================================output=====================================
+it("is a test", () => {
+  expect(tree).toMatchInlineSnapshot(\`<Hello />\`);
+});
+
+================================================================================
+`;

@@ -1,0 +1,3 @@
+jest.spyOn(require("jest"), "getVersion").mockImplementation(() => "24.6.0");
+
+run_spec(__dirname, ["babel"], { proseWrap: "always" });
