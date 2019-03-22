@@ -144,18 +144,6 @@ function embed(path, print, textToDoc /*, options */) {
       }
 
       if (isJestInlineSnapshot(path)) {
-        // Earlier Jest versions do not support formatted snapshots.
-        let isJestSnapshotFormattingSupported;
-        try {
-          const jestVersion = require("jest")
-            .getVersion()
-            .split(".");
-          isJestSnapshotFormattingSupported =
-            jestVersion[0] >= 24 && jestVersion[1] >= 5;
-        } catch (ex) {
-          isJestSnapshotFormattingSupported = false;
-        }
-  
         if (isJestSnapshotFormattingSupported) {
           const node = path.getValue();
           const text = node.quasis.map(quasi => quasi.value.raw).join("");
@@ -570,6 +558,23 @@ function isJestInlineSnapshot(path) {
     parent.callee.property.type === "Identifier" &&
     parent.callee.property.name === "toMatchInlineSnapshot"
   );
+}
+
+let _isJestSnapshotFormattingSupported = undefined;
+function isJestSnapshotFormattingSupported() {
+  // Earlier Jest versions do not support formatted snapshots.
+  if (_isJestSnapshotFormattingSupported === undefined) {
+    try {
+      const jestVersion = require("jest")
+        .getVersion()
+        .split(".");
+      _isJestSnapshotFormattingSupported =
+        jestVersion[0] >= 24 && jestVersion[1] >= 5;
+    } catch (ex) {
+      _isJestSnapshotFormattingSupported = false;
+    }
+  }
+  return _isJestSnapshotFormattingSupported;
 }
 
 function hasLanguageComment(node, languageName) {
