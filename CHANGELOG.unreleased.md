@@ -42,6 +42,47 @@ Examples:
 
 -->
 
+- JavaScript: Support Jest inline snapshots ([#000] by [@scotthovestadt])
+
+  Indent Jest inline snapshot within template literal to match enclosing call expression. Only supported if Jest version >= 24.5.0.
+
+  <!-- prettier-ignore --\>
+  ```js
+  // Input
+  it('is a test', () => {
+    expect(tree).toMatchInlineSnapshot(`
+  Object {
+    "createdAt": 2018-05-19T23:36:09.816Z,
+    "id": 3,
+    "name": "LeBron James",
+  }
+  `);
+  });
+  
+  // Output (Prettier stable)
+  it('is a test', () => {
+    expect(tree).toMatchInlineSnapshot(`
+  Object {
+    "createdAt": 2018-05-19T23:36:09.816Z,
+    "id": 3,
+    "name": "LeBron James",
+  }
+  `);
+  });
+  
+  // Output (Prettier master)
+  it('is a test', () => {
+    expect(tree).toMatchInlineSnapshot(`
+      Object {
+        "createdAt": 2018-05-19T23:36:09.816Z,
+        "id": 3,
+        "name": "LeBron James",
+      }
+    `);
+  });
+  ```
+
+
 - Config: Support shared configurations ([#5963] by [@azz])
 
   Sharing a Prettier configuration is simple: just publish a module that exports a configuration object, say `@company/prettier-config`, and reference it in your `package.json`:
